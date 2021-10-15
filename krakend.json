@@ -1,0 +1,106 @@
+{
+  "version": 2,
+  "extra_config": {},
+  "timeout": "3000ms",
+  "cache_ttl": "300s",
+  "output_encoding": "no-op",
+  "name": "kraken",
+
+  "port": 7070,
+  "endpoints": [
+    {
+      "endpoint": "/api/v1/protected-api",
+      "method": "POST",
+      "output_encoding": "json",
+      "extra_config": {
+        "github.com/devopsfaith/krakend/proxy": {
+          "sequential": true
+        }
+      },
+      "headers_to_pass": [
+        "Content-Type",
+        "Authorization",
+        "User-Agent"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/api/v1/validate-token",
+          "encoding": "json",
+          "sd": "static",
+          "method": "GET",
+          "extra_config": {
+            "github.com/devopsfaith/krakend-martian": {
+              "fifo.Group": {
+                "scope": ["request"],
+                "modifiers": [
+                  {
+                    "body.Modifier": {
+                      "scope": ["request"],
+                      "body": ""
+                    }
+                  }
+                ]
+              }
+
+            }
+          },
+
+          "host": [
+            "192.168.1.52:1323"
+          ],
+          "disable_host_sanitize": false,
+          "is_collection": false,
+          "target": ""
+        },
+        {
+          "url_pattern": "/api/v1/{resp0_user_id}/{resp0_action}",
+          "encoding": "json",
+          "sd": "static",
+          "method": "GET",
+          "extra_config": {
+            "github.com/devopsfaith/krakend-martian": {
+              "fifo.Group": {
+                "scope": ["request"],
+                "modifiers": [
+                  {
+                    "body.Modifier": {
+                      "scope": ["request"],
+                      "body": ""
+                    }
+                  }
+                ]
+              }
+
+            }
+          },
+
+          "host": [
+            "192.168.1.52:1325"
+          ],
+          "disable_host_sanitize": false,
+          "is_collection": false,
+          "target": ""
+        },
+        {
+          "url_pattern": "/api/v1/protected-api/{resp0_user_id}",
+          "encoding": "json",
+          "sd": "static",
+          "method": "POST",
+          "extra_config": {
+            "github.com/devopsfaith/krakend-martian": {
+              "header.Modifier": {
+                "scope": ["request"],
+                "name": "Authorization",
+                "value": ""
+              }
+            }
+          },
+          "disable_host_sanitize": false,
+          "host": [
+            "192.168.1.52:1324"
+          ]
+        }
+      ]
+    }
+  ]
+}
